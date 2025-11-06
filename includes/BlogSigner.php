@@ -114,18 +114,42 @@ class UmbrellaBlog_Signer {
         // Helper function to split long strings at 64 char boundary
         $split_if_needed = function($prefix, $value, $max_length = 64) use (&$message_parts) {
             $line = $prefix . $value;
-            if (strlen($line) <= $max_length) {
+            $line_length = strlen($line);
+
+            error_log("=== METADATA LINE DEBUG ===");
+            error_log("Prefix: '$prefix' (length: " . strlen($prefix) . ")");
+            error_log("Value: '$value' (length: " . strlen($value) . ")");
+            error_log("Full line: '$line' (length: $line_length)");
+            error_log("Max allowed: $max_length");
+
+            if ($line_length <= $max_length) {
                 $message_parts[] = $line;
+                error_log("✓ Fits in one line");
             } else {
-                // Split into multiple lines
-                $message_parts[] = $prefix;
+                error_log("✗ TOO LONG - splitting ($line_length / $max_length)");
+                // Split value into chunks that fit in max_length
                 $remaining = $value;
+                $first_line = true;
+
                 while (strlen($remaining) > 0) {
-                    $chunk = substr($remaining, 0, $max_length - 3); // -3 for "..." continuation indicator
-                    $remaining = substr($remaining, strlen($chunk));
-                    $message_parts[] = ($remaining ? '  ' : '  ') . $chunk . ($remaining ? '...' : '');
+                    if ($first_line) {
+                        // First line includes the prefix
+                        $available_space = $max_length - strlen($prefix);
+                        $chunk = substr($remaining, 0, $available_space);
+                        $remaining = substr($remaining, strlen($chunk));
+                        $message_parts[] = $prefix . $chunk;
+                        error_log("  Line 1: '" . $prefix . $chunk . "' (length: " . strlen($prefix . $chunk) . ")");
+                        $first_line = false;
+                    } else {
+                        // Continuation lines - use full 64 chars
+                        $chunk = substr($remaining, 0, $max_length);
+                        $remaining = substr($remaining, strlen($chunk));
+                        $message_parts[] = $chunk;
+                        error_log("  Continuation: '$chunk' (length: " . strlen($chunk) . ")");
+                    }
                 }
             }
+            error_log("==========================");
         };
 
         $split_if_needed('Title: ', stripslashes($post->title));

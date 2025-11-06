@@ -108,10 +108,13 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="button-group">
-                    <button type="submit" name="status" value="draft" class="umb-btn umb-btn-secondary"><span style="color: var(--umb-cyan);">▭</span> Save Draft</button>
-                    <button type="submit" name="status" value="published" class="umb-btn umb-btn-primary"><span style="color: var(--umb-cyan);">◉</span> Publish</button>
-                    <a href="?page=umbrella-blog" class="umb-btn umb-btn-secondary">Cancel</a>
+                <div class="button-group" style="display: flex; gap: var(--umb-space-sm); align-items: center;">
+                    <button type="submit" name="status" value="draft" class="umb-btn umb-btn-secondary" style="flex: 1;"><span style="color: var(--umb-cyan);">▭</span> Save Draft</button>
+                    <button type="submit" name="status" value="published" class="umb-btn umb-btn-primary" style="flex: 1;"><span style="color: var(--umb-cyan);">◉</span> Publish</button>
+                    <?php if ($post && $post->status === 'published'): ?>
+                        <a href="<?php echo home_url('/blog/' . $post->slug); ?>" target="_blank" class="umb-btn umb-btn-secondary" style="flex: 1;"><span style="color: var(--umb-cyan);">◉</span> View Post</a>
+                    <?php endif; ?>
+                    <a href="?page=umbrella-blog" class="umb-btn umb-btn-secondary" style="flex: 1;">Cancel</a>
                 </div>
             </div>
 
@@ -501,6 +504,7 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
         // Metadata length validation for Cardano CIP-20 (64 byte limit per string)
         function checkMetadataLength() {
             const titleEl = document.getElementById('title');
+            const slugEl = document.getElementById('slug');
             const warningDiv = document.getElementById('metadata-length-warning');
             const warningText = document.getElementById('metadata-warning-text');
 
@@ -509,9 +513,23 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
             const title = titleEl.value;
             const blogUrl = '<?php echo home_url('/blog/'); ?>';
 
-            // Calculate URL length: blog URL + slug (approximate using title)
-            const estimatedSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
-            const fullUrl = blogUrl + estimatedSlug;
+            // Use actual slug if available, otherwise estimate from title
+            let slug;
+            if (slugEl && slugEl.value) {
+                slug = slugEl.value;
+            } else {
+                // Generate slug same way as WordPress/PHP does
+                slug = title.toLowerCase()
+                    .replace(/[^\w\s-]/g, '') // Remove special chars
+                    .replace(/\s+/g, '-')      // Replace spaces with dashes
+                    .replace(/-+/g, '-')       // Replace multiple dashes with single dash
+                    .replace(/^-+|-+$/g, '')   // Trim dashes from start/end
+                    .substring(0, 200);        // WordPress default slug length
+            }
+
+            const fullUrl = blogUrl + slug;
+
+            // These are the actual metadata lines that will be sent to Cardano
             const urlMetadataLine = 'URL: ' + fullUrl;
             const titleMetadataLine = 'Title: ' + title;
 
@@ -522,16 +540,16 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
 
             if (titleLength > 64) {
                 const overage = titleLength - 64;
-                warnings.push(`Your title + "Title: " prefix is ${titleLength} characters (${overage} over 64-char limit). It will be split across multiple metadata lines.`);
+                warnings.push(`Title metadata line is ${titleLength} chars (${overage} over 64). Will split across ${Math.ceil(titleLength / 64)} lines.`);
             }
 
             if (urlLength > 64) {
                 const overage = urlLength - 64;
-                warnings.push(`Your post URL is ${urlLength} characters (${overage} over 64-char limit). It will be split across multiple metadata lines.`);
+                warnings.push(`URL metadata line is ${urlLength} chars (${overage} over 64). Will split across ${Math.ceil(urlLength / 64)} lines.`);
             }
 
             if (warnings.length > 0) {
-                warningText.innerHTML = warnings.join('<br>');
+                warningText.innerHTML = warnings.join('<br>') + '<br><small style="opacity: 0.8;">Don\'t worry - your content will be preserved across multiple metadata lines.</small>';
                 warningDiv.style.display = 'block';
             } else {
                 warningDiv.style.display = 'none';
@@ -544,6 +562,7 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
         const metaTitleEl = document.getElementById('meta-title');
         const metaDescEl = document.getElementById('meta-description');
         const titleEl = document.getElementById('title');
+        const slugEl = document.getElementById('slug');
 
         if (contentEl) {
             contentEl.addEventListener('input', updateContentStats);
@@ -567,6 +586,11 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
         }
         if (titleEl) {
             titleEl.addEventListener('input', function() {
+                checkMetadataLength();
+            });
+        }
+        if (slugEl) {
+            slugEl.addEventListener('input', function() {
                 checkMetadataLength();
             });
         }
