@@ -60,6 +60,9 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
                 <!-- Title -->
                 <div class="form-field">
                     <input type="text" id="title" name="title" placeholder="Enter your post title..." value="<?php echo $post ? esc_attr($post->title) : ''; ?>" required>
+                    <div id="metadata-length-warning" style="display: none; margin-top: 8px; padding: 10px; background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.3); border-radius: 6px; font-size: 12px; color: #ffaa00;">
+                        <strong>⚠ Metadata Notice:</strong> <span id="metadata-warning-text"></span>
+                    </div>
                 </div>
 
                 <!-- Excerpt -->
@@ -177,7 +180,7 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
                                     <span style="color: var(--umb-cyan);">⚿</span> Sign This Post
                                 </button>
                                 <p style="margin-top: 10px; font-size: 11px; color: var(--umb-text-muted);">
-                                    Cost: ~0.17 ADA (~$0.10 USD)
+                                    Cost: ~0.37 ADA (0.22 chain fee + 0.15 Anvil API fee)
                                 </p>
                             </div>
                         <?php endif; ?>
@@ -495,11 +498,52 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
             });
         }
 
+        // Metadata length validation for Cardano CIP-20 (64 byte limit per string)
+        function checkMetadataLength() {
+            const titleEl = document.getElementById('title');
+            const warningDiv = document.getElementById('metadata-length-warning');
+            const warningText = document.getElementById('metadata-warning-text');
+
+            if (!titleEl || !warningDiv || !warningText) return;
+
+            const title = titleEl.value;
+            const blogUrl = '<?php echo home_url('/blog/'); ?>';
+
+            // Calculate URL length: blog URL + slug (approximate using title)
+            const estimatedSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
+            const fullUrl = blogUrl + estimatedSlug;
+            const urlMetadataLine = 'URL: ' + fullUrl;
+            const titleMetadataLine = 'Title: ' + title;
+
+            const urlLength = urlMetadataLine.length;
+            const titleLength = titleMetadataLine.length;
+
+            let warnings = [];
+
+            if (titleLength > 64) {
+                const overage = titleLength - 64;
+                warnings.push(`Your title + "Title: " prefix is ${titleLength} characters (${overage} over 64-char limit). It will be split across multiple metadata lines.`);
+            }
+
+            if (urlLength > 64) {
+                const overage = urlLength - 64;
+                warnings.push(`Your post URL is ${urlLength} characters (${overage} over 64-char limit). It will be split across multiple metadata lines.`);
+            }
+
+            if (warnings.length > 0) {
+                warningText.innerHTML = warnings.join('<br>');
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+        }
+
         // Event listeners
         const contentEl = document.getElementById('content');
         const excerptEl = document.getElementById('excerpt');
         const metaTitleEl = document.getElementById('meta-title');
         const metaDescEl = document.getElementById('meta-description');
+        const titleEl = document.getElementById('title');
 
         if (contentEl) {
             contentEl.addEventListener('input', updateContentStats);
@@ -521,6 +565,11 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
                 toggleAutoLabel(this, 'meta-desc-auto');
             });
         }
+        if (titleEl) {
+            titleEl.addEventListener('input', function() {
+                checkMetadataLength();
+            });
+        }
 
         // Initialize on page load with small delay to ensure DOM is ready
         setTimeout(function() {
@@ -529,6 +578,7 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
             updateCharCounter(excerptEl, 'excerpt-counter', 160);
             updateCharCounter(metaTitleEl, 'meta-title-counter', 60);
             updateCharCounter(metaDescEl, 'meta-desc-counter', 160);
+            checkMetadataLength(); // Check metadata length on load
             console.log('Content stats initialized');
         }, 100);
 
@@ -536,7 +586,7 @@ $meta_description = $post ? ($post->meta_description ?: $post->excerpt) : '';
         const signPostBtn = document.getElementById('sign-post-btn');
         if (signPostBtn) {
             signPostBtn.addEventListener('click', async function() {
-                if (!confirm('Sign this post on the Cardano blockchain?\n\nThis will create a transaction with post metadata (~0.17 ADA fee) and provide immutable proof of authorship.')) {
+                if (!confirm('Sign this post on the Cardano blockchain?\n\nThis will create a transaction with post metadata (~0.37 ADA total: 0.22 ADA chain fee + 0.15 ADA Anvil API fee) and provide immutable proof of authorship.')) {
                     return;
                 }
 

@@ -105,16 +105,35 @@ class UmbrellaBlog_Signer {
 
         // 3. Build CIP-20 metadata (Anvil format)
         // Build message array with post details
+        // NOTE: Cardano metadata has a 64-byte limit per string
+        // We split longer strings into multiple lines
         $post_url = home_url('/blog/' . $post->slug);
-        $message_parts = [
-            'Blog Post Signature',
-            'Title: ' . stripslashes($post->title),
-            'URL: ' . $post_url,
-            'Author: ' . $handle_name,
-            'Published: ' . $post->created_at,
-            'Word Count: ' . (int)$post->word_count,
-            'Signed with Umbrella Blog v1.0'
-        ];
+
+        $message_parts = ['Blog Post Signature'];
+
+        // Helper function to split long strings at 64 char boundary
+        $split_if_needed = function($prefix, $value, $max_length = 64) use (&$message_parts) {
+            $line = $prefix . $value;
+            if (strlen($line) <= $max_length) {
+                $message_parts[] = $line;
+            } else {
+                // Split into multiple lines
+                $message_parts[] = $prefix;
+                $remaining = $value;
+                while (strlen($remaining) > 0) {
+                    $chunk = substr($remaining, 0, $max_length - 3); // -3 for "..." continuation indicator
+                    $remaining = substr($remaining, strlen($chunk));
+                    $message_parts[] = ($remaining ? '  ' : '  ') . $chunk . ($remaining ? '...' : '');
+                }
+            }
+        };
+
+        $split_if_needed('Title: ', stripslashes($post->title));
+        $split_if_needed('URL: ', $post_url);
+        $message_parts[] = 'Author: ' . $handle_name;
+        $message_parts[] = 'Published: ' . $post->created_at;
+        $message_parts[] = 'Word Count: ' . (int)$post->word_count;
+        $message_parts[] = 'Signed with Umbrella Blog v1.0';
 
         // Store full metadata for database
         $metadata_for_db = [
